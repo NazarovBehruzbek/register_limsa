@@ -1,0 +1,30 @@
+.app {
+  padding-top: 40px;
+
+  .logo {
+    height: 70px;
+    margin-bottom: 40px;
+
+    img{
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .banner {
+    display: flex;
+    column-gap: 10%;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 60px;
+  }
+}
+
+@media only screen and (max-width: 760px) {
+  .app {
+    .banner {
+      flex-direction: column-reverse;
+      row-gap: 40px;
+    }
+  }
+}
