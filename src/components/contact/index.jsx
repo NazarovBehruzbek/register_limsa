@@ -21,6 +21,7 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [selectedProjects, setSelectedProjects] = useState([]);
   const location = useLocation()
+  const check = location.pathname;
   const handleCheckboxChange = (e) => {
     const { id, checked } = e.target;
     let updatedProjects;
@@ -54,7 +55,7 @@ const Contact = () => {
     let project = `Project: ${formData?.project}`;
     let price = `Price: ${formData?.price}`;
 
-    const message = `${phone ? phoneText : ""}\n${formData?.fullName ? fullName : ""}\n${formData?.price ? price : ""}\n${formData?.project ? project : ""}`;
+    const message = `${check !== "/travel" ? "#form":"#travel"} \n${formData?.fullName ? fullName : ""} \n${phone ? phoneText : ""} \n${formData?.project ? project : ""} \n${formData?.price ? price : ""}`;
 
     try {
       let response = await fetch(TELEGRAM_API_URL, {
@@ -132,7 +133,7 @@ const Contact = () => {
         </div>
 
         <div>
-          <label>Loyiha turini tanlang</label>
+          <label style={{fontSize:'18px',marginBottom:'20px'}}><strong>Loyiha turini tanlang</strong></label>
           <div className="project-box">
             <div className="checkbox">
               <input
@@ -178,7 +179,7 @@ const Contact = () => {
 
         {location.pathname !== "/travel" && (
           <div>
-            <label htmlFor="price">Loyiha ajratgan byudjetingizni tanlang</label>
+            <label htmlFor="price" style={{fontSize:'18px',lineHeight:'25px'}}> <strong>Loyihaga ajratgan byudjetingizni tanlang</strong> </label>
             <select {...register("price")} id="select" defaultValue={"Tanlang"}>
               <option>Tanlang</option>
               <option value="5mln">5 million gacha</option>
