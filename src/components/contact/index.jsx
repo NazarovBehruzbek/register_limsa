@@ -4,20 +4,23 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import "./contact.scss";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
 
 const Contact = () => {
   const {
     register,
     handleSubmit,
     setError,
+    clearErrors,
     setValue,
+    trigger,
     reset,
     formState: { errors },
   } = useForm();
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedProjects, setSelectedProjects] = useState([]);
-
+  const location = useLocation()
   const handleCheckboxChange = (e) => {
     const { id, checked } = e.target;
     let updatedProjects;
@@ -33,12 +36,15 @@ const Contact = () => {
   };
 
   const TOKEN = "7835767023:AAHt3j3BWFwXlQL9ysCXjwD5RDYepxbae3I";
-  const CHAT_ID = -1002296221987;
+  const CHAT_ID = "-1002296221987";
   const TELEGRAM_API_URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
 
   const onSubmit = async (formData) => {
-    if (!phone) {
-      setError("phone", { type: "required", message: "Maydonni to'ldiring" });
+    // Trigger validation for the phone number before proceeding
+    const isPhoneValid = await trigger("phone");
+
+    if (!isPhoneValid || !phone || phone.length < 13) {
+      setError("phone", { type: "required", message: "To'liq raqam kiriting" });
       return;
     }
 
@@ -48,9 +54,7 @@ const Contact = () => {
     let project = `Project: ${formData?.project}`;
     let price = `Price: ${formData?.price}`;
 
-    const message = `${phone ? phoneText : ""}\n${
-      formData?.fullName ? fullName : ""
-    }\n${formData?.price ? price : ""}\n${formData?.project ? project : ""}`;
+    const message = `${phone ? phoneText : ""}\n${formData?.fullName ? fullName : ""}\n${formData?.price ? price : ""}\n${formData?.project ? project : ""}`;
 
     try {
       let response = await fetch(TELEGRAM_API_URL, {
@@ -68,6 +72,7 @@ const Contact = () => {
         toast.success("Muvaffaqiyatli yuborildi!");
         setPhone("");
         setSelectedProjects([]);
+        clearErrors(); // Clear all errors after successful submission
         reset();
       } else {
         toast.error("Ma'lumotlar yuborilmadi. Qayta urinib ko'ring!");
@@ -111,9 +116,13 @@ const Contact = () => {
             value={phone}
             limitMaxLength={true}
             onChange={(value) => {
-              // Set a maximum length for the phone number, for example, 13 characters
-              if (value && value.length <= 13) {
-                setPhone(value);
+              setPhone(value);
+
+              // Clear the phone error if the input meets the required length
+              if (value && value.length === 13) {
+                clearErrors("phone");
+              } else if (value && value.length < 13) {
+                setError("phone", { type: "required", message: "To'liq raqam kiriting" });
               }
             }}
             defaultCountry="UZ"
@@ -138,45 +147,49 @@ const Contact = () => {
             <div className="checkbox">
               <input
                 type="checkbox"
-                id="mobile ilova"
-                onChange={handleCheckboxChange}
-                checked={selectedProjects.includes("mobile ilova")}
-              />
-              <label htmlFor="mobile ilova">Online magazin</label>
-            </div>
-
-            <div className="checkbox">
-              <input
-                type="checkbox"
-                id="smm"
-                onChange={handleCheckboxChange}
-                checked={selectedProjects.includes("smm")}
-              />
-              <label htmlFor="smm">CRM</label>
-            </div>
-
-            <div className="checkbox">
-              <input
-                type="checkbox"
                 id="telegram bot"
                 onChange={handleCheckboxChange}
                 checked={selectedProjects.includes("telegram bot")}
               />
               <label htmlFor="telegram bot">Telegram bot</label>
             </div>
+
+            <div className="checkbox">
+              <input
+                type="checkbox"
+                id="dizayn"
+                onChange={handleCheckboxChange}
+                checked={selectedProjects.includes("dizayn")}
+              />
+              <label htmlFor="dizayn">Dizayn</label>
+            </div>
+
+            <div className="checkbox">
+              <input
+                type="checkbox"
+                id="marketing"
+                onChange={handleCheckboxChange}
+                checked={selectedProjects.includes("marketing")}
+              />
+              <label htmlFor="marketing">Marketing</label>
+            </div>
           </div>
         </div>
 
-        <div>
-          <label htmlFor="price">Loyiha ajratgan byudjetingizni tanlang</label>
-          <select {...register("price")} id="select" defaultValue={"Tanlang"}>
-            <option>Tanlang</option>
-            <option value="2000">$2000 gacha</option>
-            <option value="2000-5000">$2000 - $5000</option>
-            <option value="5000+">$5000 dan yuqori</option>
-          </select>
-        </div>
-
+        {location.pathname !== "/travel" && (
+          <div>
+            <label htmlFor="price">Loyiha ajratgan byudjetingizni tanlang</label>
+            <select {...register("price")} id="select" defaultValue={"Tanlang"}>
+              <option>Tanlang</option>
+              <option value="5mln">5 million gacha</option>
+              <option value="5mln - 10mln">5 - 10 million UZS gacha</option>
+              <option value="10mln - 20mln">10 - 20 million UZS gacha</option>
+              <option value="20mln - 30mln">20 - 30 million UZS gacha</option>
+              <option value="30mln">30 million UZS va undan yuqori</option>
+            </select>
+          </div>
+        )}
+    
         <button type="submit" disabled={loading}>
           {loading ? "loading..." : "Konsultatsiyaga yoziling"}
         </button>
